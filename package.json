@@ -2,10 +2,9 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "buddy",
   "title": "Buddy",
-  "description": "",
-  "icon": "command-icon.png",
+  "description": "Control Buddy with your keyboard.",
+  "icon": "buddy-icon.png",
   "author": "lamalamaMark",
-  "owner": "lamalamaNL",
   "categories": [
     "Developer Tools"
   ],
@@ -16,10 +15,26 @@
       "title": "Show Projects",
       "description": "Template for showing a static list and a detail view",
       "mode": "view"
+    },
+    {
+      "name": "project-create",
+      "title": "Create New Project",
+      "description": "Template for showing a static list and a detail view",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "ACCESS_TOKEN",
+      "type": "password",
+      "required": true,
+      "title": "Personal Access Token",
+      "description": "Log in to Buddy and click on your avatar and head to the API tab"
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.47.3"
+    "@raycast/api": "^1.47.3",
+    "node-fetch": "^3.3.0"
   },
   "devDependencies": {
     "@types/node": "18.8.3",
