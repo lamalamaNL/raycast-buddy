@@ -21,14 +21,14 @@ export default function Command() {
     try {
       data = (await response.json()) as WorkspacesResponse;
     } catch (e) {
-      setError(new Error("while fetching your projects"));
+      setError(new Error("while fetching your workspaces"));
     } finally {
       setWorkspaces(data.workspaces);
     }
   }
 
   async function getProjects() {
-    const response = await fetch(`${BUDDY_API_URL}/workspaces/${workspace}/projects`, {
+    const response = await fetch(`${BUDDY_API_URL}/workspaces/${workspace}/projects?per_page=999`, {
       headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
     });
 
@@ -88,7 +88,9 @@ export default function Command() {
             title={project.name}
             actions={
               <ActionPanel title="Buddy">
-                <Action.OpenInBrowser url={`${project.html_url}/pipelines`} />
+                <Action.OpenInBrowser title="Pipelines" url={`${project.html_url}/pipelines`} />
+                <Action.OpenInBrowser title="Sandboxes" url={`${project.html_url}/sb`} />
+                <Action.OpenInBrowser title="Code" url={`${project.html_url}/`} />
               </ActionPanel>
             }
           />
