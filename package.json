@@ -12,14 +12,14 @@
   "commands": [
     {
       "name": "index",
-      "title": "Show Projects",
-      "description": "Template for showing a static list and a detail view",
+      "title": "List Projects",
+      "description": "Quickly find a Buddy project",
       "mode": "view"
     },
     {
       "name": "project-create",
       "title": "Create New Project",
-      "description": "Template for showing a static list and a detail view",
+      "description": "Quickly create a new Buddy project",
       "mode": "view"
     }
   ],
@@ -33,7 +33,7 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.47.3",
+    "@raycast/api": "^1.48.0",
     "node-fetch": "^3.3.0"
   },
   "devDependencies": {

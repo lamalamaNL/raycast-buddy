@@ -1,50 +1,50 @@
 import { useEffect, useState } from "react";
-import { ActionPanel, List, Action, getPreferenceValues, LaunchType } from "@raycast/api";
+import { ActionPanel, List, Action, getPreferenceValues, showToast, Toast } from "@raycast/api";
 import fetch from "node-fetch";
-
-type Projects = {
-  project: string;
-  html_url: string;
-  projects: Project[];
-};
-
-type Workspaces = {
-  project: string;
-  html_url: string;
-  workspaces: Workspace[];
-};
-
-type Project = {
-  url: string;
-  html_url: string;
-  name: string;
-  display_name: string;
-  status: string;
-};
-
-type Workspace = {
-  url: string;
-  html_url: string;
-  id: number;
-  name: string;
-  domain: string;
-};
+import { BUDDY_API_URL } from "./config";
 
 export default function Command() {
-  const [projects, setProjects] = useState([]);
-  const [workspaces, setWorkspaces] = useState([]);
-  const [workspace, setWorkspace] = useState("");
+  const [error, setError] = useState<Error>();
+  const [projects, setProjects] = useState<IProject[]>([]);
+  const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
+  const [workspace, setWorkspace] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   const { ACCESS_TOKEN } = getPreferenceValues();
 
-  useEffect(() => {
-    fetch("https://api.buddy.works/workspaces", {
+  async function getWorkspaces() {
+    const response = await fetch(`${BUDDY_API_URL}/workspaces`, {
       headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setWorkspaces((data as any).workspaces);
-      });
+    });
+
+    let data: { workspaces: IWorkspace[] } = { workspaces: [] };
+    try {
+      data = (await response.json()) as WorkspacesResponse;
+    } catch (e) {
+      setError(new Error("while fetching your projects"));
+    } finally {
+      setWorkspaces(data.workspaces);
+    }
+  }
+
+  async function getProjects() {
+    const response = await fetch(`${BUDDY_API_URL}/workspaces/${workspace}/projects`, {
+      headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+    });
+
+    let data: { projects: IProject[] } = { projects: [] };
+    try {
+      data = (await response.json()) as ProjectsResponse;
+    } catch (e) {
+      setError(new Error("while fetching your projects"));
+    } finally {
+      setProjects(data.projects);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getWorkspaces();
   }, []);
 
   useEffect(() => {
@@ -52,17 +52,22 @@ export default function Command() {
       return;
     }
 
-    fetch(`https://api.buddy.works/workspaces/${workspace}/projects`, {
-      headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setProjects((data as any).projects);
-      });
+    getProjects();
   }, [workspace]);
+
+  useEffect(() => {
+    if (error) {
+      showToast({
+        style: Toast.Style.Failure,
+        title: "Something went wrong",
+        message: error.message,
+      });
+    }
+  }, [error]);
 
   return (
     <List
+      isLoading={loading}
       searchBarAccessory={
         <List.Dropdown
           tooltip="Workspaces"
@@ -70,13 +75,13 @@ export default function Command() {
             setWorkspace(workspace);
           }}
         >
-          {(workspaces as Workspace[]).map((workspace, index) => {
+          {workspaces.map((workspace, index) => {
             return <List.Dropdown.Item key={`workspace-${index}`} title={workspace.name} value={workspace.domain} />;
           })}
         </List.Dropdown>
       }
     >
-      {(projects as Project[]).map((project, index) => {
+      {projects.map((project, index) => {
         return (
           <List.Item
             key={`project-${index}`}
@@ -91,4 +96,32 @@ export default function Command() {
       })}
     </List>
   );
+}
+
+type ProjectsResponse = {
+  project: string;
+  html_url: string;
+  projects: IProject[];
+};
+
+type WorkspacesResponse = {
+  project: string;
+  html_url: string;
+  workspaces: IWorkspace[];
+};
+
+interface IProject {
+  url: string;
+  html_url: string;
+  name: string;
+  display_name: string;
+  status: string;
+}
+
+interface IWorkspace {
+  url: string;
+  html_url: string;
+  id: number;
+  name: string;
+  domain: string;
 }
