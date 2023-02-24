@@ -15,12 +15,6 @@
       "title": "List Projects",
       "description": "Quickly find a Buddy project",
       "mode": "view"
-    },
-    {
-      "name": "project-create",
-      "title": "Create New Project",
-      "description": "Quickly create a new Buddy project",
-      "mode": "view"
     }
   ],
   "preferences": [
