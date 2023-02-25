@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { ActionPanel, List, Action, getPreferenceValues, showToast, Toast } from "@raycast/api";
+import { ActionPanel, List, Action, getPreferenceValues, showToast, Toast, useNavigation } from "@raycast/api";
 import fetch from "node-fetch";
 import { BUDDY_API_URL } from "./config";
+import { PipelinesList } from "./components/PipelinesList";
 
 export default function Command() {
+  const { push } = useNavigation();
   const [error, setError] = useState<Error>();
   const [projects, setProjects] = useState<IProject[]>([]);
   const [workspaces, setWorkspaces] = useState<IWorkspace[]>([]);
@@ -88,9 +90,13 @@ export default function Command() {
             title={project.name}
             actions={
               <ActionPanel title="Buddy">
-                <Action.OpenInBrowser title="Pipelines" url={`${project.html_url}/pipelines`} />
-                <Action.OpenInBrowser title="Sandboxes" url={`${project.html_url}/sb`} />
-                <Action.OpenInBrowser title="Code" url={`${project.html_url}/`} />
+                <Action
+                  title="Pipelines"
+                  onAction={() => push(<PipelinesList domain={workspace} name={project.name} />)}
+                />
+                <Action.OpenInBrowser title="Open Pipelines" url={`${project.html_url}/pipelines`} />
+                <Action.OpenInBrowser title="Open Sandboxes" url={`${project.html_url}/sb`} />
+                <Action.OpenInBrowser title="Open Code" url={`${project.html_url}/`} />
               </ActionPanel>
             }
           />
