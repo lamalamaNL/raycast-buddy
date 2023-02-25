@@ -1,4 +1,4 @@
-import { ActionPanel, List, Action, getPreferenceValues, showToast, Toast, Icon } from "@raycast/api";
+import { ActionPanel, List, Action, getPreferenceValues, showToast, Toast, Icon, Color } from "@raycast/api";
 import { useEffect, useState } from "react";
 import fetch from "node-fetch";
 import { BUDDY_API_URL } from "../config";
@@ -44,11 +44,12 @@ export const PipelinesList = (props: { domain: string; name: string }) => {
     <List isLoading={loading}>
       {pipelines && pipelines.length > 0 ? (
         pipelines.map((pipeline, index) => {
-          console.log(pipeline);
           return (
             <List.Item
               key={`pipeline-${index}`}
+              icon={{ source: Icon.Circle, tintColor: Color.Green }}
               title={pipeline.name}
+              subtitle={pipeline.target_site_url}
               actions={
                 <ActionPanel title="Buddy">
                   <Action.OpenInBrowser title="Pipeline" url={`${pipeline.html_url}`} />
