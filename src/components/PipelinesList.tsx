@@ -15,12 +15,16 @@ export const PipelinesList = (props: { domain: string; name: string }) => {
       headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
     });
 
-    let data: { pipelines: IPipeline[] } = { pipelines: [] };
+    let data: { pipelines: IPipeline[]; errors: IError[] } = { pipelines: [], errors: [] };
     try {
       data = (await response.json()) as PipelinesResponse;
     } catch (e) {
       setError(new Error("while fetching your workspaces"));
     } finally {
+      if (data.errors) {
+        data.errors.forEach((error) => setError(error));
+      }
+
       setPipelines(data.pipelines);
       setLoading(false);
     }
@@ -44,10 +48,30 @@ export const PipelinesList = (props: { domain: string; name: string }) => {
     <List isLoading={loading}>
       {pipelines && pipelines.length > 0 ? (
         pipelines.map((pipeline, index) => {
+          console.log(pipeline);
+
+          let tintColor;
+          switch (pipeline.last_execution_status) {
+            case "INITIAL":
+              tintColor = Color.Yellow;
+              break;
+            case "INPROGRESS":
+              tintColor = Color.Blue;
+              break;
+            case "SUCCESSFUL":
+              tintColor = Color.Green;
+              break;
+            case "FAILED":
+              tintColor = Color.Red;
+              break;
+            default:
+              tintColor = Color.PrimaryText;
+          }
+
           return (
             <List.Item
               key={`pipeline-${index}`}
-              icon={{ source: Icon.Circle, tintColor: Color.Green }}
+              icon={{ source: Icon.Circle, tintColor: tintColor }}
               title={pipeline.name}
               subtitle={pipeline.target_site_url}
               actions={
@@ -69,7 +93,13 @@ type PipelinesResponse = {
   url: string;
   html_url: string;
   pipelines: IPipeline[];
+  errors: IError[];
 };
+
+interface IError {
+  message: string;
+  name: string;
+}
 
 interface IPipeline {
   url: string;
