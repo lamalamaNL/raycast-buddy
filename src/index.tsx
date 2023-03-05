@@ -25,7 +25,12 @@ export default function Command() {
     } catch (e) {
       setError(new Error("while fetching your workspaces"));
     } finally {
+      if (data.errors && data.errors.length > 0) {
+        setError(data.errors[0]);
+      }
+
       setWorkspaces(data.workspaces);
+      setLoading(false);
     }
   }
 
@@ -40,6 +45,7 @@ export default function Command() {
     } catch (e) {
       setError(new Error("while fetching your projects"));
     } finally {
+      console.log(data);
       setProjects(data.projects);
       setLoading(false);
     }
@@ -77,31 +83,37 @@ export default function Command() {
             setWorkspace(workspace);
           }}
         >
-          {workspaces.map((workspace, index) => {
-            return <List.Dropdown.Item key={`workspace-${index}`} title={workspace.name} value={workspace.domain} />;
-          })}
+          {workspaces && workspaces.length > 0
+            ? workspaces.map((workspace, index) => {
+                return (
+                  <List.Dropdown.Item key={`workspace-${index}`} title={workspace.name} value={workspace.domain} />
+                );
+              })
+            : ""}
         </List.Dropdown>
       }
     >
-      {projects.map((project, index) => {
-        return (
-          <List.Item
-            key={`project-${index}`}
-            title={project.name}
-            actions={
-              <ActionPanel title="Buddy">
-                <Action
-                  title="Pipelines"
-                  onAction={() => push(<PipelinesList domain={workspace} name={project.name} />)}
-                />
-                <Action.OpenInBrowser title="Open Pipelines" url={`${project.html_url}/pipelines`} />
-                <Action.OpenInBrowser title="Open Sandboxes" url={`${project.html_url}/sb`} />
-                <Action.OpenInBrowser title="Open Code" url={`${project.html_url}/`} />
-              </ActionPanel>
-            }
-          />
-        );
-      })}
+      {projects && projects.length > 0
+        ? projects.map((project, index) => {
+            return (
+              <List.Item
+                key={`project-${index}`}
+                title={project.name}
+                actions={
+                  <ActionPanel title="Buddy">
+                    <Action
+                      title="Pipelines"
+                      onAction={() => push(<PipelinesList domain={workspace} name={project.name} />)}
+                    />
+                    <Action.OpenInBrowser title="Open Pipelines" url={`${project.html_url}/pipelines`} />
+                    <Action.OpenInBrowser title="Open Sandboxes" url={`${project.html_url}/sb`} />
+                    <Action.OpenInBrowser title="Open Code" url={`${project.html_url}/`} />
+                  </ActionPanel>
+                }
+              />
+            );
+          })
+        : ""}
     </List>
   );
 }
